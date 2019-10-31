@@ -656,7 +656,14 @@ public class FXMLDocumentController implements Initializable {
 
     public boolean simulationEnded()
     {
-        return currentCycle > 0 && listIQ.isEmpty() && listROB.isEmpty();
+        for(int i = 0; i < listIQ.size(); i++)
+            if (listIQ.get(i) != null) return false;
+
+
+        for(int i = 0; i < listROB.size(); i++)
+            if (listROB.get(i) != null) return false;
+
+        return currentCycle > 0;
     }
 
     public void resetSimulation()
@@ -693,36 +700,29 @@ public class FXMLDocumentController implements Initializable {
             if (!simulationEnded())
             {
                 currentCycle++;
-                labelCycles.setText("Cycles: " + currentCycle);
+                
+                //Etapas Executadas na Primeira Metade do Ciclo (Rizing Edge)
+
+                if(currentCycle >= 5) commitStage();
+                if(currentCycle >= 4) executeStage();
+                if(currentCycle >= 2) decodeStage();
+
+                fetchStage();
+
+                //Etapas Executadas na Segunda Metade do Ciclo (Falling Edge)
+
+                if(currentCycle >= 3) issueStage();
+                if(currentCycle >= 2) decodeDispatchStage();
+
+                fetchIQStage();
+            }
+            else
+            {
+                resetSimulation();
             }
 
-            //Etapas Executadas na Primeira Metade do Ciclo (Rizing Edge)
+            labelCycles.setText("Cycles: " + currentCycle);
 
-            if(currentCycle>=5){
-                commitStage();
-            }
-
-            if(currentCycle>=4){
-                executeStage();
-            }
-
-            if(currentCycle>=2){
-                decodeStage();
-            }
-
-            fetchStage();
-
-            //Etapas Executadas na Segunda Metade do Ciclo (Falling Edge)
-
-            if(currentCycle>=3){
-                issueStage();
-            }
-
-            if(currentCycle>=2){
-                decodeDispatchStage();
-            }
-
-            fetchIQStage();
         }
     }
     
